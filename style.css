@@ -1,0 +1,192 @@
+/* ============================================================
+   VISHWAMUKHA — stylesheet
+   Palette: warm cream, saffron, gold and maroon (festival feel)
+   ============================================================ */
+
+:root {
+  --bg:      #221310;   /* deep brown page background */
+  --panel:   #F7E7C3;   /* warm cream (same as canvas sky) */
+  --ink:     #3A241B;   /* dark brown for text/borders */
+  --accent:  #E8862E;   /* saffron orange */
+  --gold:    #F2B134;   /* gold */
+  --maroon:  #8E3B2F;   /* maroon */
+  --cream:   #F6E7CE;   /* light cream text */
+  --muted:   #C9A983;   /* dimmed text */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'Baloo 2', 'Trebuchet MS', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  padding: 18px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.game-shell {
+  width: 100%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------- title ---------- */
+
+.game-title { text-align: center; }
+
+.game-title h1 {
+  color: var(--gold);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.game-title p { color: var(--muted); font-size: 0.95rem; }
+
+/* ---------- the stage (canvas + overlays) ---------- */
+
+.stage {
+  position: relative;              /* anchors the overlays */
+  width: 100%;
+  border: 5px solid #4A2C1C;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+}
+
+canvas {
+  display: block;
+  width: 100%;                     /* shrink to fit the screen */
+  height: auto;                    /* keep the 960x540 proportions */
+}
+
+/* ---------- overlays ---------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;                        /* cover the whole stage */
+  background: rgba(42, 25, 18, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px;
+}
+
+.overlay.hidden { display: none; } /* JS shows/hides with this class */
+
+.panel {
+  max-width: 540px;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+
+.panel h2 { color: var(--gold); font-size: 2.1rem; font-weight: 800; }
+
+.lore { line-height: 1.55; }
+
+.intro-kicker {
+  color: var(--gold);
+  font-weight: 800;
+  letter-spacing: 3px;
+  font-size: 0.8rem;
+}
+
+.controls-list {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.controls-list span {
+  display: inline-block;
+  min-width: 110px;
+  margin-right: 10px;
+  text-align: right;
+  color: var(--gold);
+  font-weight: 800;
+}
+
+/* ---------- buttons ---------- */
+
+button { font: inherit; cursor: pointer; }
+
+.big-button {
+  background: var(--accent);
+  color: #2A160B;
+  border: 3px solid #2A160B;
+  border-radius: 999px;
+  padding: 10px 36px;
+  font-weight: 800;
+  font-size: 1.1rem;
+  box-shadow: 0 5px 0 #9C4E14;     /* chunky "arcade" depth */
+}
+
+.big-button:active {               /* pressed effect */
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 #9C4E14;
+}
+
+.ghost-button {
+  background: transparent;
+  color: var(--cream);
+  border: 2px solid var(--cream);
+  border-radius: 999px;
+  padding: 8px 24px;
+  font-weight: 600;
+}
+
+/* ---------- control bar and touch buttons ---------- */
+
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.hint { color: var(--muted); font-size: 0.85rem; }
+
+.touch-controls {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.touch-group { display: flex; gap: 10px; flex: 1; }
+
+.touch-btn {
+  flex: 1;
+  padding: 14px 0;
+  background: #3A241B;
+  color: var(--cream);
+  border: 2px solid #6E4426;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 1rem;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;              /* stop the browser scrolling/zooming */
+}
+
+.touch-btn.pressed { background: var(--accent); color: #2A160B; }
+
+.touch-btn svg { vertical-align: middle; }
+
+/* ---------- small screens ---------- */
+
+@media (max-width: 640px) {
+  .hint { display: none; }
+  .game-title h1 { font-size: 1.5rem; }
+  .touch-btn { padding: 18px 0; }
+}

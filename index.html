@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vishwamukha</title>
+
+  <!-- A playful font for the page and the canvas text -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="game-shell">
+
+    <header class="game-title">
+      <h1>Vishwamukha</h1>
+      <p>Ten guardians. Eleven days. One darkness to purify.</p>
+    </header>
+
+    <!-- The stage holds the canvas AND the menus, so menus sit on top of the game -->
+    <div class="stage">
+
+      <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+      <!-- ===== HTML OVERLAYS (menus) =====
+           These are normal divs shown/hidden by JavaScript. -->
+
+      <div id="menuOverlay" class="overlay">
+        <div class="panel">
+          <h2>Vishwamukha</h2>
+          <p class="lore">
+            Andhakasura, the Demon of Darkness, sends his shadow army to
+            destroy the eleven-day festival. Protect the regions, collect
+            modaks, restore faith and reach the final day.
+          </p>
+          <ul class="controls-list">
+            <li><span>Move</span> A / D or arrow keys</li>
+            <li><span>Jump</span> W, up arrow or Space</li>
+            <li><span>Light attack</span> J or Z</li>
+            <li><span>Divine shot</span> K or X &nbsp;(costs 30 faith)</li>
+            <li><span>Pause</span> P</li>
+          </ul>
+          <button id="startButton" class="big-button">Start Day 1</button>
+        </div>
+      </div>
+
+      <div id="introOverlay" class="overlay hidden">
+        <div class="panel">
+          <p class="intro-kicker">NOW ENTERING THE BATTLE</p>
+          <h2 id="introCharacterName">THARK</h2>
+          <p class="lore" id="introStory">Guardian of the Dawn Gate.</p>
+          <button id="playButton" class="big-button">PLAY!</button>
+        </div>
+      </div>
+
+      <div id="pauseOverlay" class="overlay hidden">
+        <div class="panel">
+          <h2>Paused</h2>
+          <button id="resumeButton" class="big-button">Resume</button>
+          <button id="pauseRestartButton" class="ghost-button">Restart</button>
+        </div>
+      </div>
+
+      <div id="gameoverOverlay" class="overlay hidden">
+        <div class="panel">
+          <h2>The Festival Fades</h2>
+          <p>The darkness prevailed on day <span id="gameoverDay">1</span>.</p>
+          <p>Final score: <strong id="gameoverScore">0</strong></p>
+          <button id="retryButton" class="big-button">Try Again</button>
+        </div>
+      </div>
+
+      <div id="victoryOverlay" class="overlay hidden">
+        <div class="panel">
+          <h2>Victory!</h2>
+          <p>Andhakasura's darkness has been purified.
+             Lord Ganesha has restored balance to the world.</p>
+          <p>Final score: <strong id="victoryScore">0</strong></p>
+          <button id="playAgainButton" class="big-button">Play Again</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Small control bar under the canvas -->
+    <div class="control-bar">
+      <button id="pauseButton" class="ghost-button">Pause (P)</button>
+      <p class="hint">Move: A / D &nbsp;•&nbsp; Jump: W / Space &nbsp;•&nbsp; Attack: J &nbsp;•&nbsp; Divine: K</p>
+    </div>
+
+    <!-- Touch controls: the left pair moves, the right three are actions. -->
+    <div class="touch-controls">
+      <div class="touch-group">
+        <button id="btnLeft" class="touch-btn" aria-label="Move left">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M14.5 5 7.5 12l7 7" fill="none" stroke="currentColor"
+                  stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <button id="btnRight" class="touch-btn" aria-label="Move right">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+            <path d="M9.5 5l7 7-7 7" fill="none" stroke="currentColor"
+                  stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="touch-group">
+        <button id="btnJump" class="touch-btn">JUMP</button>
+        <button id="btnAttack" class="touch-btn">ATTACK</button>
+        <button id="btnDivine" class="touch-btn">DIVINE</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- The script loads last, so the HTML above already exists when it runs -->
+  <script src="game.js"></script>
+</body>
+</html>
