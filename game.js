@@ -737,10 +737,13 @@ function hurtPlayer(damage, sourceX) {
   player.x += (player.x < sourceX) ? -16 : 16;            // knockback away
   faith = Math.max(0, faith - 10);                        // pain shakes faith
 
-  if (player.health <= 0) {
+   if (player.health <= 0) {
     player.health = 0;
     document.getElementById("gameoverScore").textContent = score;
     document.getElementById("gameoverDay").textContent = DAYS[dayIndex].day;
+    // NEW: the button now names the day being retried
+    document.getElementById("retryButton").textContent =
+      "Retry Day " + DAYS[dayIndex].day;
     setGameState("gameover");
   }
 }
@@ -908,37 +911,36 @@ function updateWaveState() {
    SECTION 10 — DAY PROGRESSION
    ============================================================ */
 
-/* startDay(index)
-   WHAT: begins a day: resets the wave counter, clears old modaks,
-         computes rewards (score bonus + heal after day 1), then
-         opens the intro popup and WAITS for the player to press
-         PLAY!. Days 1–10 introduce a human guardian; Day 11 is
-         Lord Ganesha, the Vighnaharta.
-   RECEIVES: the index of the day in the DAYS array (0..10).
-   CHANGES: dayIndex, waveNumber, waveActive, modaks, score,
-            player.health, pendingDayMessage, and gameState
-            (via setGameState("intro")).
-   WHY: showing the guardian's name before the level makes each day
-        feel like a hand-off of the torch — and the wave cannot
-        surprise the player while the popup is open, because the
-        game only updates in the "playing" state. */
-function startDay(index) {
+/* startDay(index, isRetry)
+   WHAT: begins a day. Same as before, but now it can tell the
+         difference between ARRIVING at a day (fresh progression:
+         score bonus + heal) and RETRYING it after a defeat
+         (no bonus, no heal — that would be free points).
+   RECEIVES: the day index (0..10), and an OPTIONAL isRetry flag
+             (true when called from retryDay()).
+   CHANGES: dayIndex, waveNumber, waveActive, modaks,
+            pendingDayMessage, and gameState (via "intro").
+   WHY: retrying must not repeat the survival bonus, or a player
+        could lose on purpose to farm points forever. */
+function startDay(index, isRetry) {
   dayIndex = index;
   waveNumber = 1;
   waveActive = false;
-  modaks = []; // leftover sweets disappear overnight
+  modaks = [];
 
   const character = getCurrentCharacter();
   let message;
 
   if (index === DAYS.length - 1) {
-    // Day 11: the divine arrival
     message = "Lord Ganesha arrives — Vighnaharta!";
   } else if (index === 0) {
-    // Day 1: the very first guardian
     message = "Day 1 — " + character.name + " enters the battle!";
+  } else if (isRetry) {
+    // retrying this day: no bonus, no heal — just another attempt
+    message = "Day " + DAYS[index].day + " — " + character.name +
+              " tries again!";
   } else {
-    // Days 2–10: reward for surviving the previous day
+    // normal progression: reward for surviving the previous day
     const bonus = DAYS[index - 1].day * 100;
     score += bonus;
     player.health = Math.min(CONFIG.playerMaxHealth, player.health + 1);
@@ -948,7 +950,30 @@ function startDay(index) {
 
   pendingDayMessage = message;
   showIntroPopup();
-  setGameState("intro"); // the game freezes here until PLAY! is pressed
+  setGameState("intro");
+}
+
+/* retryDay()
+   WHAT: gives the player another attempt at the CURRENT day —
+         the level they just lost on. Score is KEPT (the arcade
+         "continue" idea), but faith and hearts are refilled and
+         the arena is cleared.
+   RECEIVES: nothing (reads the global dayIndex).
+   CHANGES: faith, all game arrays, player (fresh), and via
+            startDay(dayIndex, true) it reopens the same day's
+            intro popup — without the day bonus.
+   WHY: losing on Day 4 and being sent back to Day 1 feels unfair.
+        Retrying the same level keeps the challenge and the fun. */
+function retryDay() {
+  faith = CONFIG.startFaith;   // fair fresh start for faith
+  enemies = [];
+  divineShots = [];
+  enemyShots = [];
+  modaks = [];
+  slashEffects = [];
+  sparkles = [];
+  player = createPlayer();     // fresh 5 hearts
+  startDay(dayIndex, true);    // SAME day — no bonus, no heal
 }
 
 /* showIntroPopup()
@@ -1010,6 +1035,29 @@ function startGame() {
   startDay(0); // dayIndex 0 = Day 1 = Thark — opens the intro popup
 }
 
+/* retryDay()
+   WHAT: gives the player another attempt at the CURRENT day —
+         the level they just lost on. Score is KEPT (this is the
+         arcade "continue" idea), but faith and hearts are refilled
+         and the arena is cleared.
+   RECEIVES: nothing (reads the global dayIndex).
+   CHANGES: faith, all game arrays, player (fresh), and via
+            startDay(dayIndex, true) it opens the same day's
+            intro popup again.
+   WHY: losing on Day 4 and being sent back to Day 1 feels unfair
+        and makes the game exhausting to replay. Retrying the same
+        level keeps the challenge and the fun. */
+function retryDay() {
+  faith = CONFIG.startFaith;   // fair fresh start for faith
+  enemies = [];
+  divineShots = [];
+  enemyShots = [];
+  modaks = [];
+  slashEffects = [];
+  sparkles = [];
+  player = createPlayer();     // fresh 5 hearts
+  startDay(dayIndex, true);    // SAME day — no bonus, no heal
+}
 
 /* ============================================================
    SECTION 11 — DRAWING FUNCTIONS
@@ -2429,9 +2477,10 @@ document.getElementById("playButton").addEventListener("click", beginDay);
 document.getElementById("resumeButton").addEventListener("click", function () {
   setGameState("playing");
 });
-document.getElementById("pauseRestartButton").addEventListener("click", startGame);
-document.getElementById("retryButton").addEventListener("click", startGame);
+document.getElementById("retryButton").addEventListener("click", retryDay);        // was startGame
+document.getElementById("pauseRestartButton").addEventListener("click", retryDay); // was startGame
 document.getElementById("playAgainButton").addEventListener("click", startGame);
+document.getElementById("startOverButton").addEventListener("click", startGame);   // NEW
 document.getElementById("pauseButton").addEventListener("click", togglePause);
 
 // ----- mobile buttons -----
