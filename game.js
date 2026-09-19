@@ -89,12 +89,102 @@ const CHARACTERS = [
    RECEIVES: nothing (it reads the global dayIndex, which is 0..10).
    CHANGES: nothing — it only looks data up and returns it.
    WHY: it is the single "who is playing right now?" answer used by
-        the drawing code, the day banner, the intro popup and the HUD.
-        Because the CHARACTERS indexes match the DAYS indexes, Day 1
-        always gives Thark and Day 11 always gives Lord Ganesha. */
+        the drawing code, the day banner, the intro popup and the HUD. */
 function getCurrentCharacter() {
   return CHARACTERS[dayIndex];
 }
+
+/* The eleven backgrounds. IMPORTANT: the index matches the day index,
+   exactly like CHARACTERS — BACKGROUNDS[0] is Day 1's scenery and
+   BACKGROUNDS[10] is Lord Ganesha's.
+   Each theme is plain data that drawBackground() reads:
+   - sky / sun / sunRing : colors of the sky and the sun (or moon)
+   - far                 : color of birds and thin scenery lines
+   - prop                : WHICH scenery set to draw (a text switch)
+   - ground/groundTop/dots : the arena floor colors
+   - flower/flowerCore   : the marigold/petal colors on the floor edge
+   - hud / hudName       : HUD text colors (dark skies need light text!) */
+const BACKGROUNDS = [
+  { // Day 1 — Thark, the Dawn Gate
+    sky: "#FFE3B3", sun: "#FF9E4A", sunRing: "#F5813C", far: "#C77B3F",
+    prop: "gate",
+    ground: "#9C5A32", groundTop: "#7A4224", dots: "#8A4E2A",
+    flower: "#FF8C42", flowerCore: "#C0392B",
+    hud: "#6E4426", hudName: "#8E3B2F",
+  },
+  { // Day 2 — Pardhu, the Green Fields
+    sky: "#EAF6DC", sun: "#F7C948", sunRing: "#E8AE4A", far: "#5E7C3A",
+    prop: "fields",
+    ground: "#8A6B3A", groundTop: "#6E5430", dots: "#7A5E34",
+    flower: "#F2B134", flowerCore: "#D64545",
+    hud: "#5E7C3A", hudName: "#3E5C26",
+  },
+  { // Day 3 — Gambheera, the Mountain Pass
+    sky: "#DDE9F2", sun: "#F2B134", sunRing: "#E09B2D", far: "#7A8CA0",
+    prop: "mountains",
+    ground: "#6E5A48", groundTop: "#57463A", dots: "#5F4E40",
+    flower: "#E8B23A", flowerCore: "#B4531F",
+    hud: "#4E5E70", hudName: "#37475A",
+  },
+  { // Day 4 — Sarkar, the White City
+    sky: "#FDFBF2", sun: "#F7C948", sunRing: "#E8AE4A", far: "#C9C2B0",
+    prop: "city",
+    ground: "#C2A97E", groundTop: "#A08A62", dots: "#AE9670",
+    flower: "#E8862E", flowerCore: "#B4531F",
+    hud: "#6E6552", hudName: "#8E5A2F",
+  },
+  { // Day 5 — Arya, the Golden Temple
+    sky: "#FFF0C4", sun: "#F2B134", sunRing: "#DD9A22", far: "#C9973B",
+    prop: "goldentemple",
+    ground: "#A8792F", groundTop: "#8A6224", dots: "#96702A",
+    flower: "#FFDF00", flowerCore: "#D69E18",
+    hud: "#8A6224", hudName: "#A85A10",
+  },
+  { // Day 6 — Bhumi, the Sacred Grove
+    sky: "#E6F4DF", sun: "#F7C948", sunRing: "#E8AE4A", far: "#3E7C4F",
+    prop: "grove",
+    ground: "#5E8C4A", groundTop: "#49703A", dots: "#537A42",
+    flower: "#F6D7A8", flowerCore: "#E8862E",
+    hud: "#3E6E3A", hudName: "#2E5C2A",
+  },
+  { // Day 7 — Swapna, the Festival Shore
+    sky: "#FFD1A3", sun: "#FF7E4A", sunRing: "#F0612E", far: "#B96A4A",
+    prop: "shore",
+    ground: "#DDB878", groundTop: "#BA9455", dots: "#C7A05F",
+    flower: "#F6E7CE", flowerCore: "#E8862E",
+    hud: "#8A5230", hudName: "#A8402A",
+  },
+  { // Day 8 — Kanmani, the Lamp District (the evening level!)
+    sky: "#463A5C", sun: "#F6EFD9", sunRing: "#D9CFAF", far: "#6E5A8C",
+    prop: "lamps",
+    ground: "#4E3E30", groundTop: "#3A2E24", dots: "#443729",
+    flower: "#F2B134", flowerCore: "#E8862E",
+    hud: "#F6E7CE", hudName: "#F2B134",   // LIGHT text for the dark sky
+  },
+  { // Day 9 — Mrudhula, the Silver Lake
+    sky: "#EDF3F8", sun: "#F6E7CE", sunRing: "#D9CFC0", far: "#9AAFC0",
+    prop: "lake",
+    ground: "#8C9BA5", groundTop: "#71818C", dots: "#7C8B96",
+    flower: "#F6E7CE", flowerCore: "#9AAFC0",
+    hud: "#5E6E7C", hudName: "#47586A",
+  },
+  { // Day 10 — Geeta, the Final Gate
+    sky: "#E8C4B0", sun: "#E8543F", sunRing: "#C43A28", far: "#6E3B34",
+    prop: "fortgate",
+    ground: "#4E3A30", groundTop: "#3A2A22", dots: "#42312A",
+    flower: "#E8862E", flowerCore: "#C0392B",
+    hud: "#5B3A22", hudName: "#8E3B2F",
+  },
+  { // Day 11 — Lord Ganesha, the Divine Morning
+    sky: "#FFF7E0", sun: "#FFDF70", sunRing: "#F2B134", far: "#D9A93C",
+    prop: "divine",
+    ground: "#C9973B", groundTop: "#A8791F", dots: "#B98A2E",
+    flower: "#FFDF00", flowerCore: "#E8862E",
+    hud: "#A8791F", hudName: "#C9720F",
+  },
+];
+
+
 
 /* The three enemy types (plus the boss, Andhakasura, as a special
    fourth). All numbers here are plain data — no logic at all.
@@ -949,88 +1039,131 @@ function draw() {
 }
 
 /* drawBackground()
-   WHAT: paints the sky, sun, birds, temples, bunting flags and the
-         arena floor.
-   RECEIVES: nothing.  CHANGES: nothing (just pixels).
-   WHY: the arena is "reusable" because it is just repainted every
-        frame from fixed shapes — no images ever needed. */
+   WHAT: paints today's scenery. It reads the theme object for the
+         current day from BACKGROUNDS[dayIndex] — so the whole arena
+         automatically changes with every new guardian, including
+         Lord Ganesha's divine morning on Day 11.
+   RECEIVES: nothing (reads dayIndex).
+   CHANGES: nothing — drawing only.
+   WHY: the region each guardian protects becomes visible. The theme
+        array controls colors; the `prop` text picks which scenery
+        shapes are drawn. No images needed — all shapes. */
 function drawBackground() {
-  // warm sky
-  ctx.fillStyle = "#F7E7C3";
+  const theme = BACKGROUNDS[dayIndex]; // today's scenery data
+
+  // sky
+  ctx.fillStyle = theme.sky;
   ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
 
-  // sun with a simple ring
-  ctx.fillStyle = "#F3C866";
+  // sun (or moon on Day 8) with a simple ring
+  ctx.fillStyle = theme.sun;
   ctx.beginPath();
   ctx.arc(790, 96, 52, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = "#E8AE4A";
+  ctx.strokeStyle = theme.sunRing;
   ctx.lineWidth = 4;
   ctx.beginPath();
   ctx.arc(790, 96, 62, 0, Math.PI * 2);
   ctx.stroke();
 
   // two birds drifting across the sky
-  ctx.strokeStyle = "#B98A54";
+  ctx.strokeStyle = theme.far;
   ctx.lineWidth = 2;
   drawBird((frameCount * 0.4 + 200) % (CONFIG.width + 100) - 50, 90);
   drawBird((frameCount * 0.3 + 700) % (CONFIG.width + 100) - 50, 60);
 
-  // temple silhouettes behind the ground
-  drawTemple(130, 0.9);
-  drawTemple(830, 0.65);
+  // far scenery — the `prop` text picks today's shapes
+  if (theme.prop === "gate") {
+    drawGateProp(130, 0.9);
+    drawGateProp(830, 0.65);
+  } else if (theme.prop === "fields") {
+    drawHillsProp(180, 1.0);
+    drawHillsProp(760, 0.8);
+  } else if (theme.prop === "mountains") {
+    drawMountainProp(150, 1.0);
+    drawMountainProp(820, 0.7);
+  } else if (theme.prop === "city") {
+    drawCityProp(150, 0.9);
+    drawCityProp(820, 0.7);
+  } else if (theme.prop === "goldentemple") {
+    drawTemple(130, 0.9, "#E8B23A");
+    drawTemple(830, 0.65, "#E8B23A");
+  } else if (theme.prop === "grove") {
+    drawGroveProp(120, 1.0);
+    drawGroveProp(300, 0.7);
+    drawGroveProp(820, 0.9);
+  } else if (theme.prop === "shore") {
+    drawShoreBand();
+  } else if (theme.prop === "lake") {
+    drawLakeBand();
+  } else if (theme.prop === "fortgate") {
+    drawFortGateProp(480, 1.0);
+  } else if (theme.prop === "lamps") {
+    // dark rooftops of the lamp district (lamps hang after bunting)
+    ctx.fillStyle = "#2E2438";
+    ctx.fillRect(60, CONFIG.groundY - 90, 140, 90);
+    ctx.fillRect(260, CONFIG.groundY - 70, 110, 70);
+    ctx.fillRect(700, CONFIG.groundY - 100, 160, 100);
+    // a few lit windows
+    ctx.fillStyle = "#F2B134";
+    ctx.fillRect(90, CONFIG.groundY - 60, 14, 14);
+    ctx.fillRect(130, CONFIG.groundY - 60, 14, 14);
+    ctx.fillRect(740, CONFIG.groundY - 60, 14, 14);
+  } else if (theme.prop === "divine") {
+    drawDivineProp();
+    drawTemple(130, 0.9, "#E8C46B");
+    drawTemple(830, 0.65, "#E8C46B");
+  } else if (theme.prop === "temples") {
+    // fallback: the original sandstone temples
+    drawTemple(130, 0.9, "#E0B57E");
+    drawTemple(830, 0.65, "#E0B57E");
+  }
 
-  // festival bunting (little triangle flags) across the top
+  // festival bunting across the top (every day keeps its festive string)
   drawBunting();
 
+  // the Lamp District hangs glowing diyas FROM the bunting line
+  if (theme.prop === "lamps") drawLampsProp();
+
   // the arena floor
-  ctx.fillStyle = "#8A5A33";
+  ctx.fillStyle = theme.ground;
   ctx.fillRect(0, CONFIG.groundY, CONFIG.width, CONFIG.height - CONFIG.groundY);
-  ctx.fillStyle = "#6E4426";
+  ctx.fillStyle = theme.groundTop;
   ctx.fillRect(0, CONFIG.groundY, CONFIG.width, 6);
 
-  // floor texture dashes — positions come from a fixed formula,
-  // so they never jump around between frames
-  ctx.fillStyle = "#7A4E2B";
+  // floor texture dashes
+  ctx.fillStyle = theme.dots;
   for (let i = 0; i < 24; i++) {
     const x = (i * 137 + 40) % CONFIG.width;
     const y = CONFIG.groundY + 18 + (i * 53) % 44;
     ctx.fillRect(x, y, 16, 3);
   }
 
-  // marigold flowers along the floor edge
+  // marigold flowers / petals along the floor edge
   for (let i = 0; i < 13; i++) {
     const x = 30 + i * 76;
-    ctx.fillStyle = "#E8862E";
+    ctx.fillStyle = theme.flower;
     ctx.beginPath();
     ctx.arc(x, CONFIG.groundY + 16, 5, 0, Math.PI * 2);
     ctx.fill();
-    ctx.fillStyle = "#B4531F";
+    ctx.fillStyle = theme.flowerCore;
     ctx.beginPath();
     ctx.arc(x, CONFIG.groundY + 16, 2, 0, Math.PI * 2);
     ctx.fill();
   }
 }
 
-/* drawBird(x, y)
-   WHAT: draws one small bird as two little arcs (its wings). */
-function drawBird(x, y) {
-  ctx.beginPath();
-  ctx.arc(x - 6, y, 6, Math.PI * 1.1, Math.PI * 1.9);
-  ctx.arc(x + 6, y, 6, Math.PI * 1.1, Math.PI * 1.9);
-  ctx.stroke();
-}
-
-/* drawTemple(x, scale)
-   WHAT: draws a stepped temple silhouette with a flag. */
-function drawTemple(x, scale) {
+/* drawTemple(x, scale, color)
+   WHAT: draws a stepped temple silhouette — now in ANY color, so
+         different days can reuse it (golden temples on Days 5/11).
+   RECEIVES: center x, a size multiplier, and the building color. */
+function drawTemple(x, scale, color) {
   const baseY = CONFIG.groundY;
-  ctx.fillStyle = "#E0B57E";
+  ctx.fillStyle = color;
   ctx.fillRect(x - 60 * scale, baseY - 50 * scale, 120 * scale, 50 * scale);
   ctx.fillRect(x - 40 * scale, baseY - 95 * scale, 80 * scale, 45 * scale);
   ctx.fillRect(x - 24 * scale, baseY - 135 * scale, 48 * scale, 40 * scale);
 
-  // triangle roof
   ctx.beginPath();
   ctx.moveTo(x - 26 * scale, baseY - 135 * scale);
   ctx.lineTo(x + 26 * scale, baseY - 135 * scale);
@@ -1038,7 +1171,6 @@ function drawTemple(x, scale) {
   ctx.closePath();
   ctx.fill();
 
-  // flag pole and flag
   ctx.fillRect(x - 1.5, baseY - 202 * scale, 3, 27 * scale);
   ctx.fillStyle = "#D96C3B";
   ctx.beginPath();
@@ -1048,6 +1180,257 @@ function drawTemple(x, scale) {
   ctx.closePath();
   ctx.fill();
 }
+
+/* ============================================================
+   SCENERY PROPS — one small function per region. Each uses only
+   basic shapes. drawBackground() picks which ones to call today
+   by reading theme.prop.
+   ============================================================ */
+
+/* Day 1 — the Dawn Gate: two sandstone pillars and a beam. */
+function drawGateProp(x, scale) {
+  const baseY = CONFIG.groundY;
+  ctx.fillStyle = "#C77B3F";
+  ctx.fillRect(x - 46 * scale, baseY - 150 * scale, 26 * scale, 150 * scale);
+  ctx.fillRect(x + 20 * scale, baseY - 150 * scale, 26 * scale, 150 * scale);
+  ctx.fillRect(x - 56 * scale, baseY - 172 * scale, 112 * scale, 24 * scale);
+  ctx.beginPath();
+  ctx.arc(x, baseY - 180 * scale, 10 * scale, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillRect(x - 1.5, baseY - 202 * scale, 3, 24 * scale);
+  ctx.fillStyle = "#C0392B";
+  ctx.beginPath();
+  ctx.moveTo(x + 1.5, baseY - 200 * scale);
+  ctx.lineTo(x + 18 * scale, baseY - 194 * scale);
+  ctx.lineTo(x + 1.5, baseY - 188 * scale);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* Day 2 — the Green Fields: rounded hills and little crop lines. */
+function drawHillsProp(x, scale) {
+  const baseY = CONFIG.groundY;
+  ctx.fillStyle = "#94B873";
+  ctx.beginPath();
+  ctx.arc(x + 60 * scale, baseY + 20, 60 * scale, Math.PI, 0);
+  ctx.fill();
+  ctx.fillStyle = "#7BA05B";
+  ctx.beginPath();
+  ctx.arc(x, baseY + 20, 90 * scale, Math.PI, 0);
+  ctx.fill();
+  ctx.strokeStyle = "#5E7C3A";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const px = x - 60 * scale + i * 24 * scale;
+    ctx.moveTo(px, baseY - 10);
+    ctx.lineTo(px, baseY - 24);
+  }
+  ctx.stroke();
+}
+
+/* Day 3 — the Mountain Pass: grey peaks with zig-zag snow caps. */
+function drawMountainProp(x, scale) {
+  const baseY = CONFIG.groundY;
+  ctx.fillStyle = "#8A9BAC";
+  ctx.beginPath();
+  ctx.moveTo(x - 90 * scale, baseY);
+  ctx.lineTo(x, baseY - 160 * scale);
+  ctx.lineTo(x + 90 * scale, baseY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#F4F8FB";
+  ctx.beginPath();
+  ctx.moveTo(x - 22 * scale, baseY - 118 * scale);
+  ctx.lineTo(x, baseY - 160 * scale);
+  ctx.lineTo(x + 22 * scale, baseY - 118 * scale);
+  ctx.lineTo(x + 10 * scale, baseY - 108 * scale);
+  ctx.lineTo(x, baseY - 116 * scale);
+  ctx.lineTo(x - 10 * scale, baseY - 108 * scale);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#75879A";
+  ctx.beginPath();
+  ctx.moveTo(x + 30 * scale, baseY);
+  ctx.lineTo(x + 85 * scale, baseY - 90 * scale);
+  ctx.lineTo(x + 140 * scale, baseY);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* Day 4 — the White City: a domed white building with lit windows. */
+function drawCityProp(x, scale) {
+  const baseY = CONFIG.groundY;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.strokeStyle = "#D9CFC0";
+  ctx.lineWidth = 2;
+  drawRoundedRect(x - 40 * scale, baseY - 90 * scale, 80 * scale, 90 * scale,
+                  6 * scale, true, true);
+  ctx.beginPath();
+  ctx.arc(x, baseY - 90 * scale, 34 * scale, Math.PI, 0);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillRect(x - 2 * scale, baseY - 136 * scale, 4 * scale, 14 * scale);
+  ctx.fillStyle = "#BFD9E8";
+  ctx.fillRect(x - 24 * scale, baseY - 70 * scale, 12 * scale, 16 * scale);
+  ctx.fillRect(x - 6 * scale,  baseY - 70 * scale, 12 * scale, 16 * scale);
+  ctx.fillRect(x + 12 * scale, baseY - 70 * scale, 12 * scale, 16 * scale);
+}
+
+/* Day 6 — the Sacred Grove: trees with round canopies. */
+function drawGroveProp(x, scale) {
+  const baseY = CONFIG.groundY;
+  ctx.fillStyle = "#6E4A2C";
+  ctx.fillRect(x - 6 * scale, baseY - 70 * scale, 12 * scale, 70 * scale);
+  ctx.fillStyle = "#4E8C4A";
+  ctx.beginPath();
+  ctx.arc(x - 22 * scale, baseY - 78 * scale, 26 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 22 * scale, baseY - 78 * scale, 26 * scale, 0, Math.PI * 2);
+  ctx.arc(x, baseY - 100 * scale, 30 * scale, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+/* Day 7 — the Festival Shore: a band of sea, waves and a tiny boat. */
+function drawShoreBand() {
+  const top = CONFIG.groundY - 70;
+  ctx.fillStyle = "#3E8E7E";
+  ctx.fillRect(0, top, CONFIG.width, 70);
+  ctx.strokeStyle = "#F6E7CE";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < 12; i++) {
+    const wx = i * 90 + 20;
+    const wy = top + 18 + (i % 3) * 16;
+    ctx.arc(wx, wy, 14, Math.PI * 1.15, Math.PI * 1.85);
+  }
+  ctx.stroke();
+  ctx.fillStyle = "#F6E7CE";
+  ctx.beginPath();
+  ctx.moveTo(700, top + 34);
+  ctx.lineTo(700, top + 8);
+  ctx.lineTo(726, top + 34);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#6E4426";
+  ctx.fillRect(688, top + 34, 46, 5);
+}
+
+/* Day 9 — the Silver Lake: water with drifting shimmer and a lotus. */
+function drawLakeBand() {
+  const top = CONFIG.groundY - 60;
+  ctx.fillStyle = "#AFC8D8";
+  ctx.fillRect(0, top, CONFIG.width, 60);
+  ctx.strokeStyle = "#F6FBFF";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < 16; i++) {
+    const sx = (i * 97 + (frameCount / 3) % 60) % CONFIG.width;
+    const sy = top + 12 + (i % 4) * 12;
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + 18, sy);
+  }
+  ctx.stroke();
+  ctx.fillStyle = "#F6A5C0";
+  ctx.beginPath();
+  ctx.arc(180, top + 30, 8, Math.PI, 0);
+  ctx.arc(196, top + 30, 8, Math.PI, 0);
+  ctx.fill();
+}
+
+/* Day 10 — the Final Gate: a dark fort wall with an arched gateway. */
+function drawFortGateProp(x, scale) {
+  const baseY = CONFIG.groundY;
+  ctx.fillStyle = "#5E3A2E";
+  ctx.fillRect(x - 90 * scale, baseY - 120 * scale, 180 * scale, 120 * scale);
+  for (let i = 0; i < 6; i++) {
+    ctx.fillRect(x - 90 * scale + i * 32 * scale,
+                 baseY - 136 * scale, 18 * scale, 16 * scale);
+  }
+  ctx.fillStyle = "#2E1C16";
+  ctx.beginPath();
+  ctx.moveTo(x - 26 * scale, baseY);
+  ctx.lineTo(x - 26 * scale, baseY - 55 * scale);
+  ctx.arc(x, baseY - 55 * scale, 26 * scale, Math.PI, 0);
+  ctx.lineTo(x + 26 * scale, baseY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#8E3B2F";
+  ctx.beginPath();
+  ctx.moveTo(x - 60 * scale, baseY - 136 * scale);
+  ctx.lineTo(x - 44 * scale, baseY - 130 * scale);
+  ctx.lineTo(x - 60 * scale, baseY - 124 * scale);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/* Day 8 — hanging oil lamps that glow and gently flicker. */
+function drawLampsProp() {
+  for (let i = 0; i < 8; i++) {
+    const lx = 70 + i * 120;
+    const sway = Math.sin(frameCount / 50 + i) * 3;
+    ctx.strokeStyle = "#B98A54";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(lx, 34);
+    ctx.lineTo(lx + sway, 92);
+    ctx.stroke();
+    ctx.fillStyle = "#C9973B";
+    ctx.beginPath();
+    ctx.arc(lx + sway, 96, 7, 0, Math.PI);
+    ctx.fill();
+    ctx.fillStyle = "#FFB347";
+    ctx.beginPath();
+    ctx.ellipse(lx + sway, 90, 3, 5 + Math.sin(frameCount / 8 + i) * 1.2,
+                0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+/* Day 11 — the Divine Morning: slow-turning golden rays, a soft
+   halo, and two little clouds. */
+function drawDivineProp() {
+  const cx = 480, cy = 150;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(frameCount / 400);
+  ctx.fillStyle = "rgba(242, 177, 52, 0.25)";
+  for (let i = 0; i < 12; i++) {
+    ctx.rotate(Math.PI / 6);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(320, -22);
+    ctx.lineTo(320, 22);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+  ctx.fillStyle = "rgba(255, 223, 112, 0.35)";
+  ctx.beginPath();
+  ctx.arc(cx, cy, 110, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#FFFDF4";
+  drawCloud(200, 110, 1);
+  drawCloud(760, 150, 0.8);
+}
+
+/* drawCloud(x, y, scale) — three overlapping circles. */
+function drawCloud(x, y, scale) {
+  ctx.beginPath();
+  ctx.arc(x - 26 * scale, y, 16 * scale, 0, Math.PI * 2);
+  ctx.arc(x, y - 10 * scale, 20 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 26 * scale, y, 16 * scale, 0, Math.PI * 2);
+  ctx.fill();
+}
+/* drawBird(x, y)
+   WHAT: draws one small bird as two little arcs (its wings). */
+function drawBird(x, y) {
+  ctx.beginPath();
+  ctx.arc(x - 6, y, 6, Math.PI * 1.1, Math.PI * 1.9);
+  ctx.arc(x + 6, y, 6, Math.PI * 1.1, Math.PI * 1.9);
+  ctx.stroke();
+}
+
+
 
 /* drawBunting()
    WHAT: draws a string of triangle festival flags that gently sway. */
@@ -1834,10 +2217,12 @@ function drawHeart(x, y, s, filled) {
 }
 
 /* drawHUD()
-   WHAT: paints the on-game display: hearts, faith bar, score,
-         day/wave, the current character's name, plus the boss
-         health bar if Andhakasura is alive. */
+   WHAT: paints hearts, faith bar, score, day/wave and character name.
+         Text colors come from today's theme, so the HUD stays
+         readable even on the dark Lamp District sky. */
 function drawHUD() {
+  const theme = BACKGROUNDS[dayIndex]; // today's colors
+
   // hearts (one per max health; filled ones = remaining health)
   for (let i = 0; i < CONFIG.playerMaxHealth; i++) {
     drawHeart(30 + i * 30, 28, 12, i < player.health);
@@ -1853,19 +2238,19 @@ function drawHUD() {
   ctx.fillStyle = (faith >= CONFIG.divineCost) ? "#F2B134" : "#B98A54";
   drawRoundedRect(fx, fy, fw * faith / CONFIG.maxFaith, fh, 4, true, false);
   ctx.font = "800 13px 'Baloo 2', sans-serif";
-  ctx.fillStyle = "#6E4426";
+  ctx.fillStyle = theme.hud;
   ctx.fillText("FAITH", fx + fw + 10, fy);
 
   // score, day/wave and character name (right-aligned)
   ctx.textAlign = "right";
   ctx.font = "800 24px 'Baloo 2', sans-serif";
-  ctx.fillStyle = "#6E4426";
+  ctx.fillStyle = theme.hud;
   ctx.fillText("SCORE " + score, CONFIG.width - 20, 16);
   ctx.font = "800 16px 'Baloo 2', sans-serif";
   ctx.fillText("DAY " + DAYS[dayIndex].day + "  •  WAVE " + waveNumber,
                CONFIG.width - 20, 48);
   // the current character's name, right under the day line
-  ctx.fillStyle = "#8E3B2F";
+  ctx.fillStyle = theme.hudName;
   ctx.fillText(getCurrentCharacter().name.toUpperCase(), CONFIG.width - 20, 70);
   ctx.textAlign = "left";
 
