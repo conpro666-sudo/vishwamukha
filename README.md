@@ -39,3 +39,5 @@ Characters, days and backgrounds are plain data arrays(CHARACTERS, DAYS, BACKGRO
 Running Locally
 Download the three files (index.html, style.css, game.js)
 Open index.html in any modern browser — or use VS Code Live Server
+
+# Demo Video: https://www.youtube.com/watch?v=T-p4mUGOzPU&t=1s
