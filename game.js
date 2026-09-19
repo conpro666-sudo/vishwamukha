@@ -945,16 +945,56 @@ function startGame() {
    WHY: losing on Day 4 and being sent back to Day 1 feels unfair
         and makes the game exhausting to replay. Retrying the same
         level keeps the challenge and the fun. */
+
 function retryDay() {
-  faith = CONFIG.startFaith;   // fair fresh start for faith
+  faith = CONFIG.startFaith;
   enemies = [];
   divineShots = [];
   enemyShots = [];
   modaks = [];
   slashEffects = [];
   sparkles = [];
-  player = createPlayer();     // fresh 5 hearts
-  startDay(dayIndex, true);    // SAME day — no bonus, no heal
+  player = createPlayer();
+  startDay(dayIndex, true); // SAME day — no bonus, no heal
+}
+
+/* startDay(index, retrying)
+   WHAT: starts a new day and sets up the intro popup for the
+         guardian that is entering the arena. It also handles the
+         score bonus awarded for clearing the previous day.
+   RECEIVES: the day index to open, and whether this is a retry of
+             the same day.
+   CHANGES: dayIndex, waveNumber, modaks, pendingDayMessage,
+            and the visible overlay state.
+   WHY: each day has a story intro screen before play begins, and
+        the game loop expects this single entry point for all day
+        transitions. */
+
+  function startDay(index = 0, retrying = false) {
+  dayIndex = index;
+  waveNumber = 1;
+  waveActive = false;
+  modaks = [];
+
+  const character = getCurrentCharacter();
+
+  if (index === DAYS.length - 1) {
+    pendingDayMessage = "Lord Ganesha arrives — Vighnaharta!";
+  } else if (index === 0) {
+    pendingDayMessage = "Day 1 — " + character.name + " enters the battle!";
+  } else if (!retrying) {
+    const bonus = DAYS[index - 1].day * 100;
+    score += bonus;
+    player.health = Math.min(CONFIG.playerMaxHealth, player.health + 1);
+    pendingDayMessage = "Day " + DAYS[index].day + " — " + character.name +
+      " enters the battle! (+" + bonus + ")";
+  } else {
+    pendingDayMessage = "Day " + DAYS[index].day + " — " + character.name +
+      " tries again!";
+  }
+
+  showIntroPopup();
+  setGameState("intro");
 }
 
 /* showIntroPopup()
