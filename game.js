@@ -911,59 +911,40 @@ function updateWaveState() {
    SECTION 10 — DAY PROGRESSION
    ============================================================ */
 
-/* startDay(index, isRetry)
-   WHAT: begins a day. Same as before, but now it can tell the
-         difference between ARRIVING at a day (fresh progression:
-         score bonus + heal) and RETRYING it after a defeat
-         (no bonus, no heal — that would be free points).
-   RECEIVES: the day index (0..10), and an OPTIONAL isRetry flag
-             (true when called from retryDay()).
-   CHANGES: dayIndex, waveNumber, waveActive, modaks,
-            pendingDayMessage, and gameState (via "intro").
-   WHY: retrying must not repeat the survival bonus, or a player
-        could lose on purpose to farm points forever. */
-function startDay(index, isRetry) {
-  dayIndex = index;
-  waveNumber = 1;
-  waveActive = false;
+/* startGame()
+   WHAT: full reset — score, faith, player, all arrays — then starts
+         day 1 (which opens the Thark intro popup).
+   RECEIVES: nothing.
+   CHANGES: basically everything; that's the point.
+   WHY: used by the start button AND every restart button, so there
+        is exactly one way the game begins. Note: it does NOT call
+        setGameState("playing") — startDay(0) opens the popup, and
+        beginDay() starts the gameplay when PLAY! is pressed. */
+function startGame() {
+  score = 0;
+  faith = CONFIG.startFaith;
+  enemies = [];
+  divineShots = [];
+  enemyShots = [];
   modaks = [];
-
-  const character = getCurrentCharacter();
-  let message;
-
-  if (index === DAYS.length - 1) {
-    message = "Lord Ganesha arrives — Vighnaharta!";
-  } else if (index === 0) {
-    message = "Day 1 — " + character.name + " enters the battle!";
-  } else if (isRetry) {
-    // retrying this day: no bonus, no heal — just another attempt
-    message = "Day " + DAYS[index].day + " — " + character.name +
-              " tries again!";
-  } else {
-    // normal progression: reward for surviving the previous day
-    const bonus = DAYS[index - 1].day * 100;
-    score += bonus;
-    player.health = Math.min(CONFIG.playerMaxHealth, player.health + 1);
-    message = "Day " + DAYS[index].day + " — " + character.name +
-              " enters the battle! (+" + bonus + ")";
-  }
-
-  pendingDayMessage = message;
-  showIntroPopup();
-  setGameState("intro");
+  slashEffects = [];
+  sparkles = [];
+  player = createPlayer();
+  startDay(0); // dayIndex 0 = Day 1 = Thark — opens the intro popup
 }
 
 /* retryDay()
    WHAT: gives the player another attempt at the CURRENT day —
-         the level they just lost on. Score is KEPT (the arcade
-         "continue" idea), but faith and hearts are refilled and
-         the arena is cleared.
+         the level they just lost on. Score is KEPT (this is the
+         arcade "continue" idea), but faith and hearts are refilled
+         and the arena is cleared.
    RECEIVES: nothing (reads the global dayIndex).
    CHANGES: faith, all game arrays, player (fresh), and via
-            startDay(dayIndex, true) it reopens the same day's
-            intro popup — without the day bonus.
-   WHY: losing on Day 4 and being sent back to Day 1 feels unfair.
-        Retrying the same level keeps the challenge and the fun. */
+            startDay(dayIndex, true) it opens the same day's
+            intro popup again.
+   WHY: losing on Day 4 and being sent back to Day 1 feels unfair
+        and makes the game exhausting to replay. Retrying the same
+        level keeps the challenge and the fun. */
 function retryDay() {
   faith = CONFIG.startFaith;   // fair fresh start for faith
   enemies = [];
@@ -1013,51 +994,6 @@ function beginDay() {
   showBanner(pendingDayMessage, CONFIG.dayBreakFrames);
 }
 
-/* startGame()
-   WHAT: full reset — score, faith, player, all arrays — then starts
-         day 1 (which opens the Thark intro popup).
-   RECEIVES: nothing.
-   CHANGES: basically everything; that's the point.
-   WHY: used by the start button AND every restart button, so there
-        is exactly one way the game begins. Note: it does NOT call
-        setGameState("playing") — startDay(0) opens the popup, and
-        beginDay() starts the gameplay when PLAY! is pressed. */
-function startGame() {
-  score = 0;
-  faith = CONFIG.startFaith;
-  enemies = [];
-  divineShots = [];
-  enemyShots = [];
-  modaks = [];
-  slashEffects = [];
-  sparkles = [];
-  player = createPlayer();
-  startDay(0); // dayIndex 0 = Day 1 = Thark — opens the intro popup
-}
-
-/* retryDay()
-   WHAT: gives the player another attempt at the CURRENT day —
-         the level they just lost on. Score is KEPT (this is the
-         arcade "continue" idea), but faith and hearts are refilled
-         and the arena is cleared.
-   RECEIVES: nothing (reads the global dayIndex).
-   CHANGES: faith, all game arrays, player (fresh), and via
-            startDay(dayIndex, true) it opens the same day's
-            intro popup again.
-   WHY: losing on Day 4 and being sent back to Day 1 feels unfair
-        and makes the game exhausting to replay. Retrying the same
-        level keeps the challenge and the fun. */
-function retryDay() {
-  faith = CONFIG.startFaith;   // fair fresh start for faith
-  enemies = [];
-  divineShots = [];
-  enemyShots = [];
-  modaks = [];
-  slashEffects = [];
-  sparkles = [];
-  player = createPlayer();     // fresh 5 hearts
-  startDay(dayIndex, true);    // SAME day — no bonus, no heal
-}
 
 /* ============================================================
    SECTION 11 — DRAWING FUNCTIONS
