@@ -1,5 +1,5 @@
 # Vishwamukha 🪔
-A 2D arena brawler themed on Vinayaka Chaturthi.
+Vishwamukha is a 2D arena brawler- On Each day/level, a guardian who was selected by Lord Ganehsa fights waves of shadow enemies(wisp, brute and dasher), and the eleventh day ends in a boss fight with Andhakasura this game is wrapped in the Vinayaka Chaturthi theme.
 
 # ▶ Play now: https://conpro666-sudo.github.io/vishwamukha/
 
