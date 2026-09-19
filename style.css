@@ -77,6 +77,7 @@ canvas {
   justify-content: center;
   text-align: center;
   padding: 20px;
+  overflow-y: auto;                 /*If centent is taller, it scrolls */
 }
 
 .overlay.hidden { display: none; } /* JS shows/hides with this class */
@@ -86,6 +87,7 @@ canvas {
   display: grid;
   gap: 14px;
   justify-items: center;
+  margin: auto;
 }
 
 .panel h2 { color: var(--gold); font-size: 2.1rem; font-weight: 800; }
@@ -189,4 +191,20 @@ button { font: inherit; cursor: pointer; }
   .hint { display: none; }
   .game-title h1 { font-size: 1.5rem; }
   .touch-btn { padding: 18px 0; }
+
+  /* NEW: menus cover the full phone screen, so the PLAY!/Start
+     buttons are always visible and tappable */
+  .overlay {
+    position: fixed;       /* escape the small canvas box */
+    inset: 0;
+    z-index: 20;
+    border-radius: 0;
+    padding: 16px;
+  }
+
+  /* NEW: compact text so everything fits comfortably */
+  .panel h2 { font-size: 1.5rem; }
+  .lore { font-size: 0.85rem; }
+  .controls-list { font-size: 0.8rem; gap: 4px; }
+  .controls-list span { min-width: 88px; }
 }
